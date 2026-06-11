@@ -5,11 +5,26 @@ const auth = require('../middleware/auth');
 const Image = require('../models/Image');
 const Folder = require('../models/Folder');
 
+const UPLOAD_DIR = path.resolve(__dirname, '../uploads');
+const ALLOWED_TYPES = /jpeg|jpg|png|gif|webp/;
+
 const storage = multer.diskStorage({
-  destination: 'uploads/',
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, Date.now() + '-' + Math.random().toString(36).slice(2) + ext);
+  },
 });
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
+    if (ALLOWED_TYPES.test(ext) && ALLOWED_TYPES.test(file.mimetype.split('/')[1])) return cb(null, true);
+    cb(new Error('Only image files (jpg, png, gif, webp) are allowed'));
+  },
+});
 
 // Get images in a folder
 router.get('/', auth, async (req, res) => {

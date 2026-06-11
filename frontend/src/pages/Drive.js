@@ -113,7 +113,7 @@ export default function Drive() {
           </button>
           <nav>
             <div className="sidebar-item active" onClick={() => nav('/')}>
-              <span className="sidebar-icon">🏠</span> My Drive
+              <span className="sidebar-icon"></span> My Drive
             </div>
           </nav>
         </aside>
